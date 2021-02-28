@@ -1,9 +1,10 @@
 def load_menu(menu, site):
     # Наполнить меню ссылками на существующие страницы, если в атрибутах этих
     # страниц указано, что они должны быть в главном меню
-    pages = site.get_pages_list_as_objects()
+    pages = site.get_pages_list()
+    menu_id = menu.get_id()
     for page in pages:
-        if page.in_main_menu():
+        if page.get_id_menu() == menu_id:
             menu.add(page.get_url(),
                     page.get_name_in_menu(),
                     )

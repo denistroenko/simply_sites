@@ -16,7 +16,10 @@
         {{ promo | safe }}
         <div class="_container">
             {{ sidebar_left | safe }}
-            {{ content | safe }}
+            <div class="_container-content">
+                {{ slider | safe }}
+                {{ content | safe }}
+            </div>
             {{ sidebar_right | safe }}
         </div>
         {{ footer | safe }}

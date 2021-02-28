@@ -12,7 +12,7 @@ SITE_NAME = 'Symply Site'
 
 app = Flask(__name__)
 site = Site()
-menu = Menu('Main menu', 0)
+menu = Menu('Main menu', 1)
 
 
 def main():
@@ -32,15 +32,11 @@ main()
 
 @app.route('/')
 def index():
-    global site
-    global menu
     return site.get_page(url='/', menu=menu)
 
 
 @app.route('/<page_name>')
 def page_name(page_name):
-    global site
-    global menu
     page_name = '/' + page_name
     return site.get_page(url=page_name, menu=menu)
 

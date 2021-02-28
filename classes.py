@@ -12,10 +12,12 @@ class Site:
                  content_place: str='none',  # none/file_name.html
                  content='',
                  seo_data: dict={},          # see set_seo for args dict
-                 in_main_menu=True,
                  access_level: int=3,
+                 id_parent_page: int=0,      # id of parent page. 0 - root
+                 id_menu=0,                  # page in menu (id). 0 - no menu
                  ):
 
+        self.__id_counter += 1
         page = Page(id=self.__id_counter,
                     name=name,
                     url=url,
@@ -25,24 +27,37 @@ class Site:
                     content_place=content_place,
                     content=content,
                     seo_data=seo_data,
-                    in_main_menu=in_main_menu,
                     access_level=access_level,
+                    id_menu=id_menu,
                     )
         self.__pages.append(page)
-        self.__id_counter += 1
 
-    def get_page(self,
-                 url,
-                 menu: object,
-                 ):
+        if id_parent_page != 0:
+            for pg in self.__pages:
+                if pg.get_id() == id_parent_page:
+                    pg.add_child_page_id(self.__id_counter)
+
+    def get_page(self, url, menu: object):  # Generate HTML
 
         for page in self.__pages:
             if page.get_url() == url:
                 return page.get_page(menu)
         return 'error 404!'
 
-    def get_pages_list_as_objects(self):
+    def get_pages_list(self) -> list:  # return list of objects
         return self.__pages
+
+    def get_page_childs(self, id):
+        for pg in self.__pages:
+            if pg.get_id() == id:
+                return pg.get_child_id()
+        return ['---']
+
+    def get_page_id_by_name(self, name):
+        for pg in self.__pages:
+            if pg.get_name() == name:
+                return pg.get_id()
+        return -1  # -1 if NO page found
 
 
 class Page:
@@ -56,12 +71,13 @@ class Page:
                  content_place: str='none',  # none/file_name.html
                  content='',
                  seo_data: dict={},          # see set_seo for args dict
-                 in_main_menu=True,
-                 access_level: int=3,       # 0-admin,1-user,2-any user,3-any
+                 access_level: int=3,        # 0-admin,1-user,2-any user,3-any
+                 id_menu=1,                  # page in menu (id). 0 - no menu
                  ):
         from flask import render_template
 
         self.__id = id
+        self.__child_pages_id = []
         self.__name = name
 
         self.__name_in_menu = name               # Page name in menu
@@ -96,7 +112,7 @@ class Page:
 
         self.__content = content
 
-        self.__in_main_menu = in_main_menu
+        self.__id_menu = id_menu
         self.__access_level = access_level
 
         self.set_layout(layout)
@@ -106,6 +122,7 @@ class Page:
         self.__template_header = 'header.html'
         self.__template_footer = 'footer.html'
         self.__template_main_menu = 'main_menu.html'
+        self.__template_slider = 'slider.html'
         self.__template_sidebar_left = 'sidebar_left.html'
         self.__template_sidebar_right = 'sidebar_right.html'
         self.__template_promo = 'promo.html'
@@ -137,9 +154,13 @@ class Page:
         if 'footer' in layout:
             self.__show_footer = layout['footer']
 
-        self.__show_main_menu= True
+        self.__show_main_menu = True
         if 'main_menu' in layout:
             self.__show_main_menu = layout['main_menu']
+
+        self.__show_slider = False
+        if 'slider' in layout:
+            self.__show_slider = layout['slider']
 
         self.__show_sidebar_left = True
         if 'sidebar_left' in layout:
@@ -156,6 +177,9 @@ class Page:
         self.__show_holidays = False
         if 'holidays' in layout:
             self.__show_holidays = layout['holidays']
+
+    def add_child_page_id(self, id: int):
+        self.__child_pages_id.append(id)
 
     def get_page(self, menu: object):
         from flask import render_template, url_for
@@ -175,16 +199,17 @@ class Page:
                         filename='html/{}'.format(file_name)))
                 )
             self.__content = content.get_content()
-        else:
-            content = Content(
-                    name=self.__name,
-                    content=self.__content,
-                    ).get_content()
-            self.__content = content
+        # else:
+            # content = Content(
+                    # name=self.__name,
+                    # content=self.__content,
+                    # ).get_content()
+            # self.__content = content
 
         header = ''
         if self.__show_header:
             header = render_template(self.__template_header)
+
         footer = ''
         if self.__show_footer:
             copyright_year = datetime.now().year
@@ -194,18 +219,26 @@ class Page:
         if self.__show_main_menu:
             main_menu = render_template(self.__template_main_menu,
                                         main_menu=menu.get_menu_list())
+        slider = ''
+        if self.__show_slider:
+            slider = render_template(self.__template_slider)
+
         sidebar_left = ''
         if self.__show_sidebar_left:
             sidebar_left = render_template(self.__template_sidebar_left)
+
         sidebar_right = ''
         if self.__show_sidebar_right:
             sidebar_right = render_template(self.__template_sidebar_right)
+
         promo = ''
         if self.__show_promo:
             promo = render_template(self.__template_promo)
+
         holidays = ''
         if self.__show_holidays:
             holidays = render_template(self.__template_holidays)
+
         return render_template(
                 self.__template_main,
                 content=self.__content,
@@ -215,6 +248,7 @@ class Page:
                 header=header,
                 footer=footer,
                 main_menu=main_menu,
+                slider=slider,
                 sidebar_left=sidebar_left,
                 sidebar_right=sidebar_right,
                 promo=promo,
@@ -225,8 +259,14 @@ class Page:
                 js_system=self.__js_system,
                 )
 
-    def in_main_menu(self):
-        return self.__in_main_menu
+    def get_id(self):
+        return self.__id
+
+    def get_child_id(self):
+        return self.__child_pages_id
+
+    def get_id_menu(self):
+        return self.__id_menu
 
     def get_url(self):
         return self.__url
@@ -265,8 +305,13 @@ class Menu:
         self.__menu = []
         self.__name = name
         self.__id = id
+
     def add(self, link, caption):
         self.__menu.append({'link':link, 'caption':caption})
+
+    def get_id(self):
+        return self.__id
+
     def get_menu_list(self):
         return self.__menu
 
