@@ -10,6 +10,7 @@
 ._container-content {
     width: 100%;
     display: block;
+    padding: 0 5px;
 }
 ._footer {
     width: 100%;
@@ -29,7 +30,7 @@
 }
 ._sidebar_left {
 
-    min-width: 90px;
+    min-width: 120px;
     min-height: 30px;
     border: 1px solid;
     border-radius: 5px;
@@ -62,6 +63,25 @@
     padding: 0 90px;
     border-radius: 5px;
     margin-top: 5px;
+}
+._sub_menu li {
+    display: block;
+
+    /*padding-right: 5px;*/
+    list-style: none; 
+}
+._sub_menu ul {
+    width: 100%;
+
+    padding: 0 5px;
+    /*margin: 5px 0 7px 0;*/
+}
+._sub_menu {
+    width: 100%;
+    
+    /*border: 1px solid;*/
+    /*border-radius: 5px;*/
+    /*margin-top: 5px;*/
 }
 ._promo {
     width: 100%;

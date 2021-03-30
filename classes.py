@@ -35,22 +35,22 @@ class Site:
         if id_parent_page != 0:
             for pg in self.__pages:
                 if pg.get_id() == id_parent_page:
-                    pg.add_child_page_id(self.__id_counter)
+                    pg.add_child_page_by_id(self.__id_counter)
 
-    def get_page(self, url, menu: object):  # Generate HTML
+    def get_page(self, url, menu: object, submenu: object):  # Generate HTML
 
         for page in self.__pages:
             if page.get_url() == url:
-                return page.get_page(menu)
+                return page.get_page(menu, submenu)
         return 'error 404!'
 
     def get_pages_list(self) -> list:  # return list of objects
         return self.__pages
 
-    def get_page_childs(self, id):
+    def get_page_childs_by_id(self, id):
         for pg in self.__pages:
             if pg.get_id() == id:
-                return pg.get_child_id()
+                return pg.get_id_childs()
         return ['---']
 
     def get_page_id_by_name(self, name):
@@ -59,6 +59,23 @@ class Site:
                 return pg.get_id()
         return -1  # -1 if NO page found
 
+    def get_page_by_id(self, id: int) -> object:
+        for pg in self.__pages:
+            if pg.get_id() == id:
+                return pg
+        return None
+
+    def get_page_by_name(self, name: str) -> object:
+        for pg in self.__pages:
+            if pg.get_name() == name:
+                return pg
+        return None
+
+    def get_page_by_url(self, url: str) -> object:
+        for pg in self.__pages:
+            if pg.get_url() == url:
+                return pg
+        return None
 
 class Page:
     def __init__(self,
@@ -93,8 +110,6 @@ class Page:
         # Или умолчания
         if 'seo_name' in seo_data:
             self.__name_in_content = seo_data['seo_name']  # Page name changed
-                                                           # by seo_data
-
         self.__title = name
         if 'title' in seo_data:
             if seo_data['title'] != '':
@@ -122,6 +137,7 @@ class Page:
         self.__template_header = 'header.html'
         self.__template_footer = 'footer.html'
         self.__template_main_menu = 'main_menu.html'
+        # self.__template_sub_menu = 'sub_menu.html'
         self.__template_slider = 'slider.html'
         self.__template_sidebar_left = 'sidebar_left.html'
         self.__template_sidebar_right = 'sidebar_right.html'
@@ -178,10 +194,22 @@ class Page:
         if 'holidays' in layout:
             self.__show_holidays = layout['holidays']
 
-    def add_child_page_id(self, id: int):
+    def get_seo_data(self) -> dict:
+        seo_data = {}
+        title = self.__title
+        description = self.__description
+        keywords = self.__keywords
+        seo_name = self.__name_in_content
+        seo_data['title'] = title
+        seo_data['description'] = description
+        seo_data['keywords'] = keywords
+        seo_data['seo_name'] = seo_name
+        return seo_data
+
+    def add_child_page_by_id(self, id: int):
         self.__child_pages_id.append(id)
 
-    def get_page(self, menu: object):
+    def get_page(self, menu: object, submenu: object):
         from flask import render_template, url_for
         from main import file_to_content
         import baseapplib
@@ -218,14 +246,15 @@ class Page:
         main_menu = ''
         if self.__show_main_menu:
             main_menu = render_template(self.__template_main_menu,
-                                        main_menu=menu.get_menu_list())
+                                        main_menu=menu.get_menu())
         slider = ''
         if self.__show_slider:
             slider = render_template(self.__template_slider)
 
         sidebar_left = ''
         if self.__show_sidebar_left:
-            sidebar_left = render_template(self.__template_sidebar_left)
+            sidebar_left = render_template(self.__template_sidebar_left,
+                                           submenu=submenu)
 
         sidebar_right = ''
         if self.__show_sidebar_right:
@@ -262,7 +291,7 @@ class Page:
     def get_id(self):
         return self.__id
 
-    def get_child_id(self):
+    def get_id_childs(self):
         return self.__child_pages_id
 
     def get_id_menu(self):
@@ -312,6 +341,6 @@ class Menu:
     def get_id(self):
         return self.__id
 
-    def get_menu_list(self):
+    def get_menu(self):
         return self.__menu
 

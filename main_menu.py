@@ -1,4 +1,4 @@
-def load_menu(menu, site):
+def load_pages(menu, site):
     # Наполнить меню ссылками на существующие страницы, если в атрибутах этих
     # страниц указано, что они должны быть в главном меню
     pages = site.get_pages_list()
@@ -9,5 +9,10 @@ def load_menu(menu, site):
                     page.get_name_in_menu(),
                     )
             print(page.get_name_in_menu())
+
+def load_system_pages(menu: object):
     # Добавить ссылки на внешние источники
     menu.add('http://yandex.ru', 'YANDEX')
+
+    # Добавить ссылки на спец.страницы
+    menu.add('/_seo_test', 'SEO test')
