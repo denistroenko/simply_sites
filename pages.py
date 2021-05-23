@@ -78,18 +78,6 @@ def load_pages(site: object):
                   id_parent_page=site.get_page_id_by_name('О программе...'),
                   )
 
-    # id_list = site.get_page_childs_by_id(site.get_page_id_by_name('О программе...'))
-    # content = ''
-    # pages = site.get_pages_list()
-    # for pg in pages:
-        # if pg.get_id() in id_list:
-            # content += '<a href="' + pg.get_url() + '">' +\
-                    # pg.get_name_in_menu() + '</a><br>'
-    # site.add_page(name='subpages',
-                  # url='/subs',
-                  # id_menu=1,
-                  # content=content,
-                  # )
 
 
 ######## ПЕРЕДЕЛАТЬ!!!! ##################

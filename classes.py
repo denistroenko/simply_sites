@@ -1,3 +1,6 @@
+from flask import render_template
+
+
 class Site:
     def __init__(self):
         self.__pages = []  # List of the Page objects
@@ -87,11 +90,11 @@ class Page:
                  layout: dict={},            # see set_layout for args dict
                  content_place: str='none',  # none/file_name.html
                  content='',
-                 seo_data: dict={},          # see set_seo for args dict
+                 seo_data: dict={},          # 'title':, 'description':,
+                                             # 'keywords':, 'seo_name':,
                  access_level: int=3,        # 0-admin,1-user,2-any user,3-any
                  id_menu=1,                  # page in menu (id). 0 - no menu
                  ):
-        from flask import render_template
 
         self.__id = id
         self.__child_pages_id = []
@@ -268,25 +271,24 @@ class Page:
         if self.__show_holidays:
             holidays = render_template(self.__template_holidays)
 
-        return render_template(
-                self.__template_main,
-                content=self.__content,
-                title=self.__title,
-                description=self.__description,
-                keywords=self.__keywords,
-                header=header,
-                footer=footer,
-                main_menu=main_menu,
-                slider=slider,
-                sidebar_left=sidebar_left,
-                sidebar_right=sidebar_right,
-                promo=promo,
-                holidays=holidays,
-                css=self.__css,
-                css_system = self.__css_system,
-                js=self.__js,
-                js_system=self.__js_system,
-                )
+        return render_template(self.__template_main,
+                               content=self.__content,
+                               title=self.__title,
+                               description=self.__description,
+                               keywords=self.__keywords,
+                               header=header,
+                               footer=footer,
+                               main_menu=main_menu,
+                               slider=slider,
+                               sidebar_left=sidebar_left,
+                               sidebar_right=sidebar_right,
+                               promo=promo,
+                               holidays=holidays,
+                               css=self.__css,
+                               css_system = self.__css_system,
+                               js=self.__js,
+                               js_system=self.__js_system,
+                               )
 
     def get_id(self):
         return self.__id
@@ -322,11 +324,10 @@ class Content:
 
     def get_content(self):
         from flask import render_template
-        return render_template(
-                self.__template,
-                name=self.__name,
-                content=self.__content,
-                )
+        return render_template(self.__template,
+                               name=self.__name,
+                               content=self.__content,
+                               )
 
 
 class Menu:
